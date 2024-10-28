@@ -1,0 +1,2 @@
+- sarakstīt visas vajadzīgās asemblera funkcijas: agra.s
+- sarakstīt uzdevuma aprakstu: apraksts.pdf
