@@ -7,10 +7,13 @@
 	.extern currentPixColor 
 	.extern FrameBufferGetAddress
 	.extern FrameBufferGetWidth
+
+
 setPixColor:
 	ldr	r1, =currentPixColor
 	str	r0, [r1]
 	bx	lr
+
 
 pixel:
 	push	{r0-r2,lr}
@@ -69,11 +72,13 @@ pixel:
 	str	r2, [r0, r3, LSL #2]	@ iekrasojam
 	b	.Lend_pixel
 
+
 draw8SymmetricPoints:
 	push	{r0-r3, lr}
 	ldr r2, =currentPixColor
 	ldr r2, [r2]
 	push	{r2}
+
 	ldr	r0, [sp, #4]
 	ldr	r3, [sp, #12]
 	add	r0, r0, r3	@ x0+x
@@ -138,8 +143,10 @@ draw8SymmetricPoints:
 	sub r1, r1, r3	@ y0-x
 	ldr r2, [sp]
 	bl	pixel
-	pop {r0}
+
+	pop {r2}
 	pop {r0-r3, pc}
+
 
 circle:
 	push {r0-r2, lr}
