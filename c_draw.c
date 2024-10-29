@@ -38,6 +38,7 @@ void line(int x0, int y0, int x1, int y1){
 	}
 }
 
+void draw8SymmetricPoints(int x0, int y0, int x, int y);
 // void draw8SymmetricPoints(int x0, int y0, int x, int y) {
 // 	pixel(x0+x, y0+y, currentPixColor);
 // 	pixel(x0+x, y0-y, currentPixColor);
@@ -48,33 +49,33 @@ void line(int x0, int y0, int x1, int y1){
 // 	pixel(x0-y, y0+x, currentPixColor);
 // 	pixel(x0-y, y0-x, currentPixColor);
 // }
-void draw8SymmetricPoints(int x0, int y0, int x, int y);
 
-void circle(int x0, int y0, int R){
-	int x,y, d, dE, dSE;
-	x = 0;
-	y = R;
-	d = 1 - R;
-	dE = 3;
-	dSE = -2*R + 5;
-	draw8SymmetricPoints(x0, y0, x, y);
-	while(y > x){
-		if(d < 0){
-			d += dE;
-			dE += 2;
-			dSE += 2;
-			++x;
-		}
-		else{
-			d += dSE;
-			dE += 2;
-			dSE += 4;
-			++x;
-			--y;
-		}
-		draw8SymmetricPoints(x0, y0, x, y);
-	}
-}
+void circle(int x0, int y0, int R);
+// void circle(int x0, int y0, int R){
+// 	int x,y, d, dE, dSE;
+// 	x = 0;
+// 	y = R;
+// 	d = 1 - R;
+// 	dE = 3;
+// 	dSE = -2*R + 5;
+// 	draw8SymmetricPoints(x0, y0, x, y);
+// 	while(y > x){
+// 		if(d < 0){
+// 			d += dE;
+// 			dE += 2;
+// 			dSE += 2;
+// 			++x;
+// 		}
+// 		else{
+// 			d += dSE;
+// 			dE += 2;
+// 			dSE += 4;
+// 			++x;
+// 			--y;
+// 		}
+// 		draw8SymmetricPoints(x0, y0, x, y);
+// 	}
+// }
 
 typedef struct {
 	int x;
