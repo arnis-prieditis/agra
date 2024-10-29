@@ -38,7 +38,6 @@ void line(int x0, int y0, int x1, int y1){
 	}
 }
 
-void draw8SymmetricPoints(int x0, int y0, int x, int y);
 // void draw8SymmetricPoints(int x0, int y0, int x, int y) {
 // 	pixel(x0+x, y0+y, currentPixColor);
 // 	pixel(x0+x, y0-y, currentPixColor);
@@ -50,7 +49,6 @@ void draw8SymmetricPoints(int x0, int y0, int x, int y);
 // 	pixel(x0-y, y0-x, currentPixColor);
 // }
 
-void circle(int x0, int y0, int R);
 // void circle(int x0, int y0, int R){
 // 	int x,y, d, dE, dSE;
 // 	x = 0;
