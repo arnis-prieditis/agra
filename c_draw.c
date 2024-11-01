@@ -13,8 +13,7 @@
 //	frame_buffer[x + width*y] = *colorop;
 //}
 
-void line(int x0, int y0, int x1, int y1){
-	// var novilkt linijas tikai +-45 gradu lenkii no x ass
+void line_low(int x0, int y0, int x1, int y1, int swap){
   if (x1 < x0) {
     int tmp = x0;
     x0 = x1;
@@ -38,7 +37,11 @@ void line(int x0, int y0, int x1, int y1){
 	x = x0;
 	y = y0;
 	while(x<=x1){
-    pixel(x, y, currentPixColor);
+    if (swap) {
+      pixel(y, x, currentPixColor);
+    } else {
+      pixel(x, y, currentPixColor);
+    }
 		if(d<=0){
 			d+=dE;
 			++x;
@@ -49,6 +52,19 @@ void line(int x0, int y0, int x1, int y1){
 			y = y + yi;
 		}
 	}
+}
+
+void line(int x0, int y0, int x1, int y1) {
+  int dx, dy;
+  dx = x1 - x0;
+  dy = y1 - y0;
+  if (dx < 0) dx = -dx;
+  if (dy < 0) dy = -dy;
+  if (dy < dx) {
+    line_low(x0, y0, x1, y1, 0);
+  } else {
+    line_low(y0, x0, y1, x1, 1);
+  }
 }
 
 // void draw8SymmetricPoints(int x0, int y0, int x, int y) {
