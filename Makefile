@@ -16,8 +16,10 @@ all:	$(OBJS)
 	$(AS) $(ASFLAGS) -o $@ $<
 
 clean:
-	$(RM) *.o $(TARGET) $(TARGET).lis 
+	$(RM) *.o $(TARGET) $(TARGET).lis *.png pixel_art.txt
 
 test:   all 
-	qemu-arm -L /usr/arm-linux-gnueabi $(TARGET) 
-
+	qemu-arm -L /usr/arm-linux-gnueabi $(TARGET)
+pic:	all txt_to_png.py
+	qemu-arm -L /usr/arm-linux-gnueabi $(TARGET) > pixel_art.txt
+	python3 txt_to_png.py
