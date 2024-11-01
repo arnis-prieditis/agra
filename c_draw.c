@@ -14,17 +14,31 @@
 //}
 
 void line(int x0, int y0, int x1, int y1){
-	// var novilkt linijas tikai 45 gradu lenkii
-	int dx, dy, dE, dNE, d, x, y;
+	// var novilkt linijas tikai +-45 gradu lenkii no x ass
+  if (x1 < x0) {
+    int tmp = x0;
+    x0 = x1;
+    x1 = tmp;
+    tmp = y0;
+    y0 = y1;
+    y1 = tmp;
+  }
+	int dx, dy, dE, dNE, d, x, y, yi;
 	dx = x1-x0;
 	dy = y1-y0;
+  yi = 1;
+  if (dy < 0) {
+    yi = -1;
+    dy = -dy;
+  }
+
 	d = 2 * dy - dx;
 	dE = 2 * dy;
 	dNE = 2 * (dy - dx);
 	x = x0;
 	y = y0;
-	pixel(x, y, currentPixColor);
-	while(x<x1){
+	while(x<=x1){
+    pixel(x, y, currentPixColor);
 		if(d<=0){
 			d+=dE;
 			++x;
@@ -32,9 +46,8 @@ void line(int x0, int y0, int x1, int y1){
 		else{
 			d+=dNE;
 			++x;
-			++y;
+			y = y + yi;
 		}
-		pixel(x, y, currentPixColor);
 	}
 }
 
