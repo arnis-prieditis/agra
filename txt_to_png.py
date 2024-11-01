@@ -23,14 +23,14 @@ def text_to_image(input_file, output_file):
 
     # Determine image size
     height = len(lines)
-    width = max(len(line) for line in lines)
+    width = len(lines[0])-1
 
     # Create a blank image (numpy array) with 3 channels (BGR) and set to black
     image = np.zeros((height, width, 3), dtype=np.uint8)
 
     # Set pixels based on the symbol in each position
     for y, line in enumerate(lines):
-        for x, symbol in enumerate(line):
+        for x, symbol in enumerate(line[:-1]):
             image[y, x] = symbol_to_color(symbol)
 
     # Save the image
