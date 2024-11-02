@@ -49,20 +49,21 @@ char* pix_to_char_color (pixcolor_t pix) {
 	if (pix.g >= 0x0200) greenDominates = true;
 	if (pix.b >= 0x0200) blueDominates = true;
 	if (!redDominates && !greenDominates && !blueDominates)	return " ";
-	if (redDominates && greenDominates && blueDominates)	return "\033[0;37m*\033[0m";
-	if (redDominates && !greenDominates && !blueDominates)	return "\033[0;31mR\033[0m";
-	if (!redDominates && greenDominates && !blueDominates)	return "\033[0;32mG\033[0m";
-	if (!redDominates && !greenDominates && blueDominates)	return "\033[0;34mB\033[0m";
-	if (!redDominates && greenDominates && blueDominates)	return "\033[0;36mC\033[0m";
-	if (redDominates && !greenDominates && blueDominates)	return "\033[0;35mM\033[0m";
-	if (redDominates && greenDominates && !blueDominates)	return "\033[0;33mY\033[0m";
+	if (redDominates && greenDominates && blueDominates)	return "\033[0;37m*";
+	if (redDominates && !greenDominates && !blueDominates)	return "\033[0;31mR";
+	if (!redDominates && greenDominates && !blueDominates)	return "\033[0;32mG";
+	if (!redDominates && !greenDominates && blueDominates)	return "\033[0;34mB";
+	if (!redDominates && greenDominates && blueDominates)	return "\033[0;36mC";
+	if (redDominates && !greenDominates && blueDominates)	return "\033[0;35mM";
+	if (redDominates && greenDominates && !blueDominates)	return "\033[0;33mY";
 	return "E"; // error
 }
 
 // Kadra izvadīšana uz "displeja iekārtas".
 int FrameShow() {
 	if (FrameBuffer == NULL) return 1;
-	for (int i=0; i<FrameHeight; i++) {
+	for (int i=FrameHeight-1; i>=0; i--) {
+	// for (int i=0; i<FrameHeight; i++) {
 		for (int j=0; j<FrameWidth; j++) {
 			printf("%s", pix_to_char(FrameBuffer[i*FrameWidth + j]));
 		}
