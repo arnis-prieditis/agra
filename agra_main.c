@@ -22,7 +22,7 @@ int main (int argc, char ** argv) {
 	pixel(25, 2, &white);
 	pixcolor_t blue = {0,0,0x03ff,0};
 	setPixColor(&blue);
-	line(0,0,39,19);
+	line_1(24,0,30,19);
 	pixcolor_t green = {0,0x03ff,0,2};
 	setPixColor(&green);
 	triangleFill(20,13,28,19,38,6);
