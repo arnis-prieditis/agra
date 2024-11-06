@@ -2,7 +2,6 @@
 	.align 2
 	.global setPixColor
 	.global pixel
-	.global draw8SymmetricPoints
 	.global circle
 	.extern currentPixColor 
 	.extern FrameBufferGetAddress
@@ -73,7 +72,13 @@ pixel:
 	b	.Lend_pixel
 
 
-draw8SymmetricPoints:
+draw_8_symmetric_points:
+	/* Paligfunkcija prieks funkcijas circle()
+	*  Ieejas parametri ir x0, y0, dx, dy
+	*  Rinka linijai ar centru x0, y0 uzzime apkart
+	*  8 punktus katru sava oktantaa. dx, dy define tikai
+	*  vienu rinka linijas punktu, kas atrodas 0-45 gradu
+	*  regiona. */
 	push	{r0-r3, lr}
 	ldr r2, =currentPixColor
 	ldr r2, [r2]
@@ -81,66 +86,66 @@ draw8SymmetricPoints:
 
 	ldr	r0, [sp, #4]
 	ldr	r3, [sp, #12]
-	add	r0, r0, r3	@ x0+x
+	add	r0, r0, r3	@ x0+dx
 	ldr	r1, [sp, #8]
 	ldr r3, [sp, #16]
-	add r1, r1, r3	@ y0+y
+	add r1, r1, r3	@ y0+dy
 	ldr r2, [sp]
 	bl	pixel
 	ldr	r0, [sp, #4]
 	ldr	r3, [sp, #12]
-	add	r0, r0, r3	@ x0+x
+	add	r0, r0, r3	@ x0+dx
 	ldr	r1, [sp, #8]
 	ldr r3, [sp, #16]
-	sub r1, r1, r3	@ y0-y
+	sub r1, r1, r3	@ y0-dy
 	ldr r2, [sp]
 	bl	pixel
 	ldr	r0, [sp, #4]
 	ldr	r3, [sp, #12]
-	sub	r0, r0, r3	@ x0-x
+	sub	r0, r0, r3	@ x0-dx
 	ldr	r1, [sp, #8]
 	ldr r3, [sp, #16]
-	add r1, r1, r3	@ y0+y
+	add r1, r1, r3	@ y0+dy
 	ldr r2, [sp]
 	bl	pixel
 	ldr	r0, [sp, #4]
 	ldr	r3, [sp, #12]
-	sub	r0, r0, r3	@ x0-x
+	sub	r0, r0, r3	@ x0-dx
 	ldr	r1, [sp, #8]
 	ldr r3, [sp, #16]
-	sub r1, r1, r3	@ y0-y
+	sub r1, r1, r3	@ y0-dy
 	ldr r2, [sp]
 	bl	pixel
 	ldr	r0, [sp, #4]
 	ldr	r3, [sp, #16]
-	add	r0, r0, r3	@ x0+y
+	add	r0, r0, r3	@ x0+dy
 	ldr	r1, [sp, #8]
 	ldr r3, [sp, #12]
-	add r1, r1, r3	@ y0+x
+	add r1, r1, r3	@ y0+dx
 	ldr r2, [sp]
 	bl	pixel
 	ldr	r0, [sp, #4]
 	ldr	r3, [sp, #16]
-	add	r0, r0, r3	@ x0+y
+	add	r0, r0, r3	@ x0+dy
 	ldr	r1, [sp, #8]
 	ldr r3, [sp, #12]
-	sub r1, r1, r3	@ y0-x
+	sub r1, r1, r3	@ y0-dx
 	ldr r2, [sp]
 	bl	pixel
 	ldr	r0, [sp, #4]
 	ldr	r3, [sp, #16]
-	sub	r0, r0, r3	@ x0-y
+	sub	r0, r0, r3	@ x0-dy
 	ldr	r1, [sp, #8]
 	ldr r3, [sp, #12]
-	add r1, r1, r3	@ y0+x
+	add r1, r1, r3	@ y0+dx
 	ldr r2, [sp]
 	bl	pixel
 	ldr	r0, [sp, #4]
 	ldr	r3, [sp, #16]
-	sub	r0, r0, r3	@ x0-y
+	sub	r0, r0, r3	@ x0-dy
 	ldr	r1, [sp, #8]
 	ldr r3, [sp, #12]
-	sub r1, r1, r3	@ y0-x
+	sub r1, r1, r3	@ y0-dx
 	ldr r2, [sp]
 	bl	pixel
 
@@ -167,13 +172,13 @@ circle:
 	add r1, r1, #6		@ -2*R + 5
 	str r1, [sp, #16]	@ dSE = -2*R + 5
 
-	/* izsaucam draw8SymmetricPoints(x0, y0, x, y) */
+	/* izsaucam draw_8_symmetric_points(x0, y0, dx, dy) */
 .Lcall8points:
 	ldr r0, [sp, #20]
 	ldr r1, [sp, #24]
 	ldr r2, [sp]
 	ldr r3, [sp, #4]
-	bl	draw8SymmetricPoints
+	bl	draw_8_symmetric_points
 	b	.Lcircle_loop_test
 
 /* while (y > x) */

@@ -44,9 +44,6 @@ void triangleFill(int x1, int y1, int x2, int y2, int x3, int y3);
 // Funkcija riņķa līnijas zīmēšanai
 void circle(int x1, int y1, int radius);
 
-//paligfunkcija prieks circle()
-void draw8SymmetricPoints(int x0, int y0, int x, int y);
-
 // Kadra bufera sākuma adrese
 pixcolor_t * FrameBufferGetAddress();
 
