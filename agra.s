@@ -3,6 +3,7 @@
 	.global setPixColor
 	.global pixel
 	.global circle
+	.global line
 	.extern currentPixColor 
 	.extern FrameBufferGetAddress
 	.extern FrameBufferGetWidth
@@ -225,4 +226,155 @@ circle:
 
 	add	sp, sp, #20
 	pop {r0-r2, lr}
+	bx	lr
+
+line:
+	/* Balstits uz Brezenhama linijas zimesanas algiritmu.
+	*  Bet vel papildinats ar to, lai var zimet ne tikai
+	*  1. oktantaa: 0-45 gradu lenki no x ass. */
+	push	{r4-r12, lr}
+
+	sub	sp, sp, #40
+	/* No sakuma parbaudam, vai abs(dy) > abs(dx) => tad var
+	*  aprekinos attiecigos x un y mainigos samainit
+	*  vietam, bet katrreiz, kad jazime pikseli,
+	*  samainit "atpakal" aprekinatas x un y koordinates. */
+.Lline_check_dx_dy:
+	sub	r4, r2, r0	@ x1-x0 = dx
+	sub	r5, r3, r1	@ y1-y0 = dy
+	cmp	r4, #0			@ if (dx < 0) dx = -dx;
+	mvnmi	r4, r4
+	addmi	r4, r4, #1
+	cmp	r5, #0			@ if (dy < 0) dy = -dy;
+	mvnmi	r5, r5
+	addmi	r5, r5, #1
+	cmp	r5, r4
+	@ bhi	.Lline_swap_x_y
+	bls	.Lline_no_swap_x_y
+.Lline_swap_x_y:
+	mov	r4, #1
+	str	r4, [sp]	@ sp-> doSwap=1, ...
+	mov	r4, r0		@ 3 rindas: x0 <-> y0
+	mov	r0, r1
+	mov	r1, r4
+	mov	r4, r2		@ 3 rindas: x1 <-> y1
+	mov	r2, r3
+	mov	r3, r4
+	b	.Lline_check_left_to_right
+.Lline_no_swap_x_y:
+	mov	r4, #0
+	str	r4, [sp]	@ sp-> doSwap=0, ...
+.Lline_check_left_to_right:
+	/* if (x1 < x0) samaina galapunktus vietam, jo
+	*  Brezenhama algoritms tikai viena virziena strada */
+	cmp	r2, r0
+	@ blo	.Lline_swap_points
+	bhs	.Lline_start_brezenham
+.Lline_swap_points:
+	mov	r4, r0		@ 3 rindas: x0 <-> x1
+	mov	r0, r2
+	mov	r2, r4
+	mov	r4, r1		@ 3 rindas: y0 <-> y1
+	mov	r1, r3
+	mov	r3, r4
+.Lline_start_brezenham:
+	/* registros: x0, y0, x1, y1 */
+	/* sp-> doSwap, [9 brivas vietas] */
+	sub	r4, r2, r0		@ x1-x0 = dx
+	cmp	r4, #0
+	blo	.Lline_error	@ dx tagad noteikti vajadzetu but nenegativam
+	str	r4, [sp, #4]
+	sub	r5, r3, r1		@ y1-y0 = dy
+	mov	r6, #1			@ yi = 1; y inkrements
+	/* Ja dy<0 tad linija dilst nevis aug:
+	*  y bus jainkremente par -1 nevis +1
+	*  Bet aprekinos vajag pozitivu dy vertibu */
+	cmp	r5, #0
+	bhs	.Lline_set_variables
+	@ blo	.Lline_set_decrement_y
+.Lline_set_decrement_y:
+	mvn	r5, r5		@ 2 rindas: dy = -dy
+	add	r5, #1
+	mov	r6, #-1		@ yi = -1
+
+.Lline_set_variables:
+	str	r5, [sp, #8]	@ dy
+	str	r6, [sp, #12]	@ yi
+	lsl	r7, r5, #1		@ 2*dy
+	str	r7, [sp, #20]	@ dE = 2*dy
+	sub	r8, r7, r4		@ 2*dy-dx
+	str	r8, [sp, #16]	@ d = 2*dy-dx
+	sub	r9, r5, r4		@ dy-dx
+	lsl r9, r9, #1		@ 2*(dy-dx)
+	str	r9, [sp, #24]	@ dNE = 2*(dy-dx)
+	str	r0, [sp, #28]	@ x = x0
+	str	r1, [sp, #32]	@ y = y0
+	str	r2, [sp, #36]	@ parliekam x1 uz steku
+	/* sp-> doSwap, dx, dy, yi, d, dE, dNE, x, y, x1 */
+	b	.Lline_loop_check
+.Lline_loop:
+	ldr	r0, [sp]
+	cmp	r0, #0
+	beq	.Lline_call_pixel_normal
+	cmp	r0, #1
+	beq	.Lline_call_pixel_swap
+	b	.Lline_error	@ nederiga doSwap vertiba
+.Lline_call_pixel_normal:
+	ldr	r0, [sp, #28]	@ x
+	ldr	r1, [sp, #32]	@ y
+	ldr	r2, =currentPixColor
+	ldr	r2, [r2]		@ ?? jo ieprieks bija address to pointer value??
+	bl	pixel
+	b	.Lline_check_d
+.Lline_call_pixel_swap:
+	ldr	r0, [sp, #32]	@ y
+	ldr	r1, [sp, #28]	@ x
+	ldr	r2, =currentPixColor
+	ldr	r2, [r2]
+	bl	pixel
+	b	.Lline_check_d
+.Lline_check_d:
+	ldr	r0, [sp, #16]
+	cmp	r0, #0		@ (d <= 0) ?
+	@ signed comparison!!
+	ble	.Lline_d_nonpositive
+	bgt	.Lline_d_positive
+
+.Lline_d_nonpositive:
+	/* 	d+=dE;
+		x++; */
+	ldr	r1, [sp, #20]	@ dE
+	add	r2, r0, r1		@ d+dE
+	str	r2, [sp, #16]	@ ieraksta jauno d
+	ldr	r3, [sp, #28]	@ x
+	add	r3, r3, #1
+	str	r3, [sp, #28]
+	b	.Lline_loop_check
+.Lline_d_positive:
+	/*	d+=dNE;
+		x++;
+		y = y + yi; */
+	ldr	r1, [sp, #24]	@ dNE
+	add	r2, r0, r1		@ d+dNE
+	str	r2, [sp, #16]	@ ieraksta jauno d
+	ldr	r3, [sp, #28]	@ x
+	add	r3, r3, #1
+	str	r3, [sp, #28]
+	ldr	r4, [sp, #32]	@ y
+	ldr	r5, [sp, #12]	@ yi
+	add	r6, r4, r5
+	str	r6, [sp, #32]
+	b	.Lline_loop_check
+.Lline_loop_check:
+	ldr	r0, [sp, #28]	@ x
+	ldr	r1, [sp, #36]	@ x1
+	cmp	r0, r1			@ (x <= x1) ? (maybe signed comp is safer)
+	bls	.Lline_loop
+	b	.Lline_end		@ vai bhi?
+.Lline_error:
+	mov	r0, #1
+	@ b	.Lline_end
+.Lline_end:
+	add	sp, sp, #40
+	pop	{r4-r12, lr}
 	bx	lr
