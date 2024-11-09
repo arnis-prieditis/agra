@@ -25,7 +25,8 @@ int main (int argc, char ** argv) {
 	line(39,19,10,0);
 	pixcolor_t green = {0,0x03ff,0,2};
 	setPixColor(&green);
-	triangleFill(20,13,28,19,38,6);
+	// triangleFill(19, 19, 5, 9, 30, 3);
+	triangleFill_1(19, 0, 5, 9, 30, 3);
 	pixcolor_t red = {0x03ff,0,0,2};
 	setPixColor(&red);
 	circle(20,10,7);

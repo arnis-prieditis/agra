@@ -40,6 +40,7 @@ void line_1(int x1, int y1, int x2, int y2);
 
 // Funkcija trijstūra aizpildīšanai ar tekošo krāsu
 void triangleFill(int x1, int y1, int x2, int y2, int x3, int y3);
+void triangleFill_1(int x1, int y1, int x2, int y2, int x3, int y3);
 
 // Funkcija riņķa līnijas zīmēšanai
 void circle(int x1, int y1, int radius);

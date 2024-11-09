@@ -1,2 +1,3 @@
 https://www.sunshine2k.de/coding/java/TriangleRasterization/TriangleRasterization.html
+https://kristoffer-dyrkorn.github.io/triangle-rasterizer/1
 https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm#All_cases

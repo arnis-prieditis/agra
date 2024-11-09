@@ -1,4 +1,5 @@
 #include "agra.h"
+#include <stdio.h>
 
 // pagaidu funkcijas implementācijas C
 // vajadzēs pārrakstīt asemblerā
@@ -246,5 +247,68 @@ void triangleFill(int x1, int y1, int x2, int y2, int x3, int y3)
 	};
     fillBottomFlatTriangle(v1, v2, v4);
     fillTopFlatTriangle(v2, v4, v3);
+  }
+}
+
+int determinant (int x0, int y0, int x1, int y1, int px, int py) {
+    int mala_dx = x1-x0;
+    int mala_dy = y1-y0;
+    int pts_dx = px-x0;
+    int pts_dy = py-y0;
+    int D = mala_dx * pts_dy - mala_dy * pts_dx;
+    return D;
+}
+
+void triangleFill_1 (int x1, int y1, int x2, int y2, int x3, int y3) {
+  int xmax, xmin, ymax, ymin;
+  xmax = x1;
+  if (x2>xmax) xmax = x2;
+  if (x3>xmax) xmax = x3;
+  xmin = x1;
+  if (x2<xmin) xmin = x2;
+  if (x3<xmin) xmin = x3;
+  ymax = y1;
+  if (y2>ymax) ymax = y2;
+  if (y3>ymax) ymax = y3;
+  ymin = y1;
+  if (y2<ymin) ymin = y2;
+  if (y3<ymin) ymin = y3;
+
+  // vajag, lai pti 1, 2, 3 šādā secībā ir izvietoti pretpulksteņrādītājvirzienā
+  // šis pārbauda, vai pts 3 ir pa kreisi no vektora p1->p2
+  // ja nav, tad samaina vietām ptus 2 un 3
+  if (determinant(x1,y1,x2,y2,x3,y3) < 0) {
+    int tmp = x2;
+    x2 = x3;
+    x3 = tmp;
+    tmp = y2;
+    y2 = y3;
+    y3 = tmp;
+  }
+  
+  // samazinam "bounding box", lai ietilpst ieks FrameBuffer
+  int frame_width = FrameBufferGetWidth();
+  int frame_height = FrameBufferGetHeight();
+  if (xmax > frame_width-1) xmax = frame_width-1;
+  if (xmin < 0) xmin = 0;
+  if (ymax > frame_height-1) ymax = frame_height-1;
+  if (ymin < 0) ymin = 0;
+
+  for (int y=ymin; y<=ymax; y++) {
+    for (int x=xmin; x<=xmax; x++) {
+      // katram punktam pārbaudam tā "vektoriālo reizinājumu" ar
+      // katru no trijstūra malām. Ja visi ir nenegatīvi, tad punkts ir
+      // trijstūra iekšienē. Te arī tiek pieņemts, ka trijstūra punkti ir
+      // tādā secībā, ka tie iet pretpulksteņrādītājvirzienā ap trijstūra centru.
+      int d1 = determinant(x1,y1,x2,y2,x,y);
+      int d2 = determinant(x2,y2,x3,y3,x,y);
+      int d3 = determinant(x3,y3,x1,y1,x,y);
+      // printf("%d %d %d\n", d1, d2, d3);
+
+      if (d1>=0 && d2>=0 && d3>=0) {
+        pixel(x, y, currentPixColor);
+      }
+    }
+    // printf("Next line\n");
   }
 }
