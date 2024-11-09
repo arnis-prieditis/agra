@@ -1,2 +1,4 @@
 - sarakstīt visas vajadzīgās asemblera funkcijas: agra.s
 - sarakstīt uzdevuma aprakstu: apraksts.pdf
+- ieviest līnijas apcirpšanu, lai neraksta/nerēķina neko ārpus FrameBuffer
+- pixel funkcijā arī pārbaudīt, vai pts ir iekšā FrameBuffer, jo nezinu, kā circle funkcijā veikt kaut kādu apcirpšanu
