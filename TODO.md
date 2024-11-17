@@ -1,4 +1,6 @@
-- sarakstīt visas vajadzīgās asemblera funkcijas: agra.s
 - sarakstīt uzdevuma aprakstu: apraksts.pdf
 - ieviest līnijas apcirpšanu, lai neraksta/nerēķina neko ārpus FrameBuffer
-- pixel funkcijā arī pārbaudīt, vai pts ir iekšā FrameBuffer, jo nezinu, kā circle funkcijā veikt kaut kādu apcirpšanu
+- circle iekš draw_8_symmetric_points pārbaudīt, vai ietilpst FrameBufferī
+- pixel funkcijā arī pārbaudīt, vai pts ir iekšā FrameBuffer (ja neizdodas implementēt apcirpšanas visās citās funkcijās)
+- varbūt uz Brezenhama algoritmu bāzēta triangleFill implementācija
+- varbūt pārrakstīt komentārus vienā stilā (ar garumzīmēm)
