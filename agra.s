@@ -4,9 +4,11 @@
 	.global pixel
 	.global circle
 	.global line
+	.global triangleFill
 	.extern currentPixColor 
 	.extern FrameBufferGetAddress
 	.extern FrameBufferGetWidth
+	.extern FrameBufferGetHeight
 
 
 setPixColor:
@@ -377,4 +379,183 @@ line:
 .Lline_end:
 	add	sp, sp, #40
 	pop	{r4-r12, lr}
+	bx	lr
+
+
+triangleFill:
+	push	{r4-r12,lr}
+	ldr	r4, [sp, #40]	@ x3
+	ldr	r5, [sp, #44]	@ y3
+	sub	sp, sp, #8
+	push	{r0-r5}
+
+	/* Izsaucam determinant, lai noteiktu, vai punkti ir
+	padoti pretpulksteņrādītājvirzienā. Ja nav, tad samainīsim
+	2. un 3. punktu vietām. */
+	push	{r4-r5}	@ r0-r3 jau satur pirmo 2 ptu koord, 3. ptam jabut stekā priekš determinant()
+	bl	determinant
+	add	sp, sp, #8	@ tagad sp->x1,y1,x2,y2,x3,y3, (r4-r12,lr)
+	cmp	r0, #0
+	bge	.LtriangleFill_is_anti_clockwise
+	@ tagad ir jāsamaina vietām 2. un 3. punkts
+	@ tie jau ir stekā
+	ldr	r0, [sp, #8]	@ x2
+	ldr	r1, [sp, #12]	@ y2
+	ldr	r2, [sp, #16]	@ x3
+	ldr	r3, [sp, #20]	@ y3
+	str	r0, [sp, #16]
+	str	r1, [sp, #20]
+	str	r2,	[sp, #8]
+	str	r3, [sp, #12]
+.LtriangleFill_is_anti_clockwise:
+	/* Tagad jānoskaidro max un min vērtības x un y koordinātēm.
+	   Lai var izveidot "bounding box", kurā katram pikselim
+	   pārbaudīsim, vai tas ir iekšā/ārā no trijstūra. */
+	@ r4-r7 glabās xmax, ymax, xmin, ymin
+
+	@ pagaidu fix (vajadzetu visu max/min noteikšanu pārrakstīt)
+	ldr	r0, [sp, #8]	@ x2
+	ldr	r1, [sp, #12]	@ y2
+	ldr	r2, [sp, #16]	@ x3
+	ldr	r3, [sp, #20]	@ y3
+
+	@ xmax
+	cmp	r0, r2	@ salidzinam x2 un x3
+	movgt	r4, r0	@ x2>x3
+	movle	r4, r2	@ x2<=x3
+	ldr	r0, [sp]	@ x1
+	cmp	r0, r4
+	movgt	r4, r0
+
+	@ ymax
+	cmp r1, r3	@ y2 un y3
+	movgt	r5, r1	@ y2>y3
+	movle	r5, r3	@ y2<=y3
+	ldr	r0, [sp, #4]	@ y1
+	cmp	r0, r5
+	movgt	r5, r0
+
+	@ xmin
+	ldr	r0, [sp, #8] @ x2
+	@ tagad reģistros atkal ir x2,y2,x3,y3
+	cmp r0, r2
+	movlt	r6, r0
+	movge	r6, r2
+	ldr r0, [sp]	@ x1
+	cmp r0, r6
+	movlt r6, r0
+	cmp r6, #0		@ pārbaudam, vai nav mazāk par 0
+	movlt r6, #0
+
+	@ ymin
+	cmp r1, r3
+	movlt	r7, r1
+	movge	r7, r3
+	ldr r0, [sp, #4]	@ y1
+	cmp	r0, r7
+	movlt	r7, r0
+	cmp r7, #0		@ pārbaudam, vai nav mazāk par 0
+	movlt r7, #0
+
+	/* Tagad pārbaudam vēl, vai iegūtās
+	max vērtības nav ārpus FrameBuffer */
+	bl	FrameBufferGetWidth
+	sub r0, r0, #1	@ jo xmax var būt frame buffer width - 1
+	cmp r4, r0
+	movgt r4, r0
+	bl FrameBufferGetHeight
+	sub r0, r0, #1
+	cmp r5, r0
+	movgt r5, r0
+
+	/* Tagad ejam cauri katram pikselim iekš iespējamajām
+	   max/min robežām un pārbaudam, vai tas ir "pa kreisi"
+	   visām trim trijstūra malām, izsaucot determinant() */
+	@ xmin un ymin jau būs kā ciklu skaitītāju sākotnējās vērtības
+	str r6, [sp, #24]	@ saglabajam xmin
+	str r7, [sp, #28]	@ saglabajam ymin
+
+@ for (int y=ymin; y<=ymax; y++)
+.LtriangleFill_y_loop:
+
+@ for (int x=xmin; x<=xmax; x++)
+	ldr	r6, [sp, #24]	@ x=xmin
+.LtriangleFill_x_loop:
+
+	sub sp, sp, #8	@ atbrivojam vietu, lai var determinant() padot parametrus
+	str r6, [sp]		@ x
+	str r7, [sp, #4]	@ y
+
+	@ Visiem determinant() rezultātiem jābūt >=0
+	@ Tagad sp->x,y,x1,y1,x2,y2,x3,y3,xmin,ymin, (r4-r12,lr)
+
+	@ determinant(x1,y1,x2,y2,x,y)
+	mov r8, sp
+	add r8, r8, #8
+	ldmfd r8, {r0-r3}
+	bl	determinant
+	cmp r0, #0
+	blt	.LtriangleFill_nevajag_zimet
+
+	@ determinant(x2,y2,x3,y3,x,y)
+	add r8, r8, #8
+	ldmfd r8, {r0-r3}
+	bl	determinant
+	cmp r0, #0
+	blt	.LtriangleFill_nevajag_zimet
+
+	@ determinant(x3,y3,x1,y1,x,y)
+	add r8, r8, #8
+	ldmfd r8, {r0,r1}
+	ldr r2, [sp, #8]
+	ldr r3, [sp, #12]
+	bl	determinant
+	cmp r0, #0
+	blt	.LtriangleFill_nevajag_zimet
+
+	@ Ja šeit nokļūst, tātad izpildās (d1>=0 && d2>=0 && d3>=0)
+	@ d1-d3 ir determinant() rezultāti
+	ldr r0, [sp]
+	ldr r1, [sp, #4]
+	ldr r2, =currentPixColor
+	ldr r2, [r2]
+	bl	pixel
+
+.LtriangleFill_nevajag_zimet:
+
+	add sp, sp, #8	@ lai katrā cikla iterācijā nevajadzīgi neaizņemtu vēl papildus vietu
+	add	r6, r6, #1	@ x++
+.LtriangleFill_x_loop_check:
+	cmp r6, r4
+	ble	.LtriangleFill_x_loop
+
+	add	r7, r7, #1	@ y++
+.LtriangleFill_y_loop_check:
+	cmp r7, r5
+	ble	.LtriangleFill_y_loop
+
+.LtriangleFill_end:
+	add	sp, sp, #32
+	pop	{r4-r12,lr}
+	bx	lr
+
+@ palīgfunkcija priekš triangleFill()
+@ int determinant (int x0, int y0, int x1, int y1, int x2, int y2);
+@ Aprēķina vektoriālo reizinājumu starp vektoriem AB un AC, ja
+@ pieņem, ka ieejā ir attiecīgi punktu A,B,C koordinātes sādā secībā.
+@ Ja rezultāts ir pozitīvs, tad punkts C ir pa kreisi no vektora AB.
+determinant:
+	push {r4-r5}
+	sub r2, r2, r0	@ AB_dx=x1-x0
+	sub r3, r3, r1	@ AB_dy=y1-y0
+	ldr r4, [sp, #8]	@ x2
+	ldr r5, [sp, #12]	@ y2
+	sub r4, r4, r0	@ AC_dx=x2-x0
+	sub r5, r5, r1	@ AC_dy=y2-y0
+	@ rezultats = AB_dx*AC_dy - AB_dy*AC_dx
+	mul r0, r2, r5
+	mul r1, r3, r4
+	sub r0, r0, r1
+
+	pop	{r4-r5}
 	bx	lr

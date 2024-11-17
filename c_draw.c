@@ -205,7 +205,7 @@ void fillTopFlatTriangle(Vertice v1, Vertice v2, Vertice v3)
   }
 }
 
-void triangleFill(int x1, int y1, int x2, int y2, int x3, int y3)
+void triangleFill_1(int x1, int y1, int x2, int y2, int x3, int y3)
 {
   Vertice v1 = {x1, y1};
   Vertice v2 = {x2, y2};
@@ -250,7 +250,7 @@ void triangleFill(int x1, int y1, int x2, int y2, int x3, int y3)
   }
 }
 
-int determinant (int x0, int y0, int x1, int y1, int px, int py) {
+int determinant_1 (int x0, int y0, int x1, int y1, int px, int py) {
     int mala_dx = x1-x0;
     int mala_dy = y1-y0;
     int pts_dx = px-x0;
@@ -259,7 +259,7 @@ int determinant (int x0, int y0, int x1, int y1, int px, int py) {
     return D;
 }
 
-void triangleFill_1 (int x1, int y1, int x2, int y2, int x3, int y3) {
+void triangleFill_2 (int x1, int y1, int x2, int y2, int x3, int y3) {
   int xmax, xmin, ymax, ymin;
   xmax = x1;
   if (x2>xmax) xmax = x2;
@@ -277,7 +277,7 @@ void triangleFill_1 (int x1, int y1, int x2, int y2, int x3, int y3) {
   // vajag, lai pti 1, 2, 3 šādā secībā ir izvietoti pretpulksteņrādītājvirzienā
   // šis pārbauda, vai pts 3 ir pa kreisi no vektora p1->p2
   // ja nav, tad samaina vietām ptus 2 un 3
-  if (determinant(x1,y1,x2,y2,x3,y3) < 0) {
+  if (determinant_1(x1,y1,x2,y2,x3,y3) < 0) {
     int tmp = x2;
     x2 = x3;
     x3 = tmp;
@@ -300,9 +300,9 @@ void triangleFill_1 (int x1, int y1, int x2, int y2, int x3, int y3) {
       // katru no trijstūra malām. Ja visi ir nenegatīvi, tad punkts ir
       // trijstūra iekšienē. Te arī tiek pieņemts, ka trijstūra punkti ir
       // tādā secībā, ka tie iet pretpulksteņrādītājvirzienā ap trijstūra centru.
-      int d1 = determinant(x1,y1,x2,y2,x,y);
-      int d2 = determinant(x2,y2,x3,y3,x,y);
-      int d3 = determinant(x3,y3,x1,y1,x,y);
+      int d1 = determinant_1(x1,y1,x2,y2,x,y);
+      int d2 = determinant_1(x2,y2,x3,y3,x,y);
+      int d3 = determinant_1(x3,y3,x1,y1,x,y);
       // printf("%d %d %d\n", d1, d2, d3);
 
       if (d1>=0 && d2>=0 && d3>=0) {
