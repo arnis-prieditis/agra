@@ -270,8 +270,8 @@ line:
 	/* if (x1 < x0) samaina galapunktus vietam, jo
 	*  Brezenhama algoritms tikai viena virziena strada */
 	cmp	r2, r0
-	@ blo	.Lline_swap_points
-	bhs	.Lline_start_brezenham
+	@ blt	.Lline_swap_points
+	bge	.Lline_start_brezenham
 .Lline_swap_points:
 	mov	r4, r0		@ 3 rindas: x0 <-> x1
 	mov	r0, r2
@@ -284,7 +284,7 @@ line:
 	/* sp-> doSwap, [9 brivas vietas] */
 	sub	r4, r2, r0		@ x1-x0 = dx
 	cmp	r4, #0
-	blo	.Lline_error	@ dx tagad noteikti vajadzetu but nenegativam
+	blt	.Lline_error	@ dx tagad noteikti vajadzetu but nenegativam
 	str	r4, [sp, #4]
 	sub	r5, r3, r1		@ y1-y0 = dy
 	mov	r6, #1			@ yi = 1; y inkrements
@@ -292,8 +292,8 @@ line:
 	*  y bus jainkremente par -1 nevis +1
 	*  Bet aprekinos vajag pozitivu dy vertibu */
 	cmp	r5, #0
-	bhs	.Lline_set_variables
-	@ blo	.Lline_set_decrement_y
+	bge	.Lline_set_variables
+	@ blt	.Lline_set_decrement_y
 .Lline_set_decrement_y:
 	mvn	r5, r5		@ 2 rindas: dy = -dy
 	add	r5, #1
@@ -370,9 +370,9 @@ line:
 .Lline_loop_check:
 	ldr	r0, [sp, #28]	@ x
 	ldr	r1, [sp, #36]	@ x1
-	cmp	r0, r1			@ (x <= x1) ? (maybe signed comp is safer)
-	bls	.Lline_loop
-	b	.Lline_end		@ vai bhi?
+	cmp	r0, r1			@ (x <= x1) ?
+	ble	.Lline_loop
+	b	.Lline_end		@ vai bgt?
 .Lline_error:
 	mov	r0, #1
 	@ b	.Lline_end
