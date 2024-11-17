@@ -36,14 +36,14 @@ void pixel(int x, int y, pixcolor_t * colorop);
 
 // Funkcija līnijas zīmēšanai starp punktiem
 void line(int x1, int y1, int x2, int y2);
-void line_1(int x1, int y1, int x2, int y2);
+// void line_1(int x1, int y1, int x2, int y2);
 
 // Funkcija trijstūra aizpildīšanai ar tekošo krāsu
 void triangleFill(int x1, int y1, int x2, int y2, int x3, int y3);
-void triangleFill_1(int x1, int y1, int x2, int y2, int x3, int y3);
-void triangleFill_2(int x1, int y1, int x2, int y2, int x3, int y3);
-int determinant_1 (int x0, int y0, int x1, int y1, int px, int py);
-int determinant (int x0, int y0, int x1, int y1, int px, int py);
+// void triangleFill_1(int x1, int y1, int x2, int y2, int x3, int y3);
+// void triangleFill_2(int x1, int y1, int x2, int y2, int x3, int y3);
+// int determinant_1 (int x0, int y0, int x1, int y1, int px, int py);
+// int determinant (int x0, int y0, int x1, int y1, int px, int py);
 
 // Funkcija riņķa līnijas zīmēšanai
 void circle(int x1, int y1, int radius);

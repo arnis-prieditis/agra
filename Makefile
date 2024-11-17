@@ -1,10 +1,10 @@
 TARGET=agra
-OBJS= framebuffer.o $(TARGET)_main.o c_draw.o $(TARGET).o
+OBJS=framebuffer.o $(TARGET)_main.o $(TARGET).o
 CC=arm-linux-gnueabi-gcc
 LINKER=arm-linux-gnueabi-gcc
 AS=arm-linux-gnueabi-as
 ASFLAGS=-mcpu=xscale -alh=$*.lis -L -g
-CFLAGS = -O0 -Wall -g
+CFLAGS=-O0 -Wall -g
 
 all:	$(OBJS)
 	$(LINKER) -g -o $(TARGET) $^
