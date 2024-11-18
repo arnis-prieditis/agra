@@ -19,30 +19,35 @@ setPixColor:
 
 pixel:
 	/* ieejas parametri: x, y, color addr */
-	@ pārbaudam, vai koordinātes nav ārpus FrameBuffer
+	@ no sākuma pārbaudam, vai koordinātes nav ārpus FrameBuffer
 	cmp	r0, #0
 	bxlt	lr
 	cmp	r1, #0
 	bxlt	lr
 	push	{r0-r2, lr}
-	bl	FrameBufferGetAddress
-	str	r0, [sp, #-4]!
-	bl	FrameBufferGetWidth
-	str	r0, [sp, #-4]!
-/* sp-> FrameBufferWidth, FrameBuffer addr, x, y, color addr, lr */
+	sub	sp, sp, #8	@ rezervējam vietu
+/* sp-> _, _, x, y, color addr, lr */
 	bl	FrameBufferGetHeight
 	@ r0: FrameBufferHeight
 	ldr	r1, [sp, #12]	@ y
 	cmp	r1, r0
 	bge	.Lend_pixel		@ if (y >= FrameBufferHeight) return;
+	bl	FrameBufferGetWidth
+	@ r0: FrameBufferWidth
+	ldr	r1, [sp, #8]	@ x
+	cmp r1, r0
+	bge	.Lend_pixel	@ if (x >= FrameBufferWidth) return;
+	str	r0, [sp, #4]
+	bl	FrameBufferGetAddress
+	str	r0, [sp]
+/* sp-> FrameBuffer addr, FrameBufferWidth, x, y, color addr, lr */
 	ldr	r0, [sp, #8]	@ x
-	ldr	r2, [sp]		@ FrameBufferWidth
-	cmp	r0, r2
-	bge	.Lend_pixel		@ if (x >= FrameBufferWidth) return;
+	ldr r1, [sp, #12]	@ y
+	ldr	r2, [sp, #4]	@ FrameBufferWidth
 	mla	r3, r1, r2, r0	@ y*FrameBufferWidth + x : FrameBuffer indekss, kurs jaiekraso
 	ldr	r1, [sp, #16]	@ color addr
 	ldr	r1, [r1]		@ color value
-	ldr	r2, [sp, #4]	@ FrameBuffer addr
+	ldr	r2, [sp]		@ FrameBuffer addr
 /* r1: color, r2: FrameBuffer addr, r3: FrameBuffer index */
 	lsr	r0, r1, #30		@ panemam tikai pirmos 2 bitus - op lauks (sakuma nevis beigas, jo little endian)
 	cmp	r0, #0
