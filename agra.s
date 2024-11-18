@@ -19,17 +19,27 @@ setPixColor:
 
 pixel:
 	/* ieejas parametri: x, y, color addr */
+	@ pārbaudam, vai koordinātes nav ārpus FrameBuffer
+	cmp	r0, #0
+	bxlt	lr
+	cmp	r1, #0
+	bxlt	lr
 	push	{r0-r2, lr}
 	bl	FrameBufferGetAddress
-	str	r0, [sp, #-4]!	
+	str	r0, [sp, #-4]!
 	bl	FrameBufferGetWidth
-	str	r0, [sp, #-4]!	
-/* sp-> width, FrameBuffer addr, x, y, color addr, lr */
-/* steka ir ierakstitas 6 vertibas */
-	ldr	r0, [sp, #8]	@ x
+	str	r0, [sp, #-4]!
+/* sp-> FrameBufferWidth, FrameBuffer addr, x, y, color addr, lr */
+	bl	FrameBufferGetHeight
+	@ r0: FrameBufferHeight
 	ldr	r1, [sp, #12]	@ y
-	ldr	r2, [sp]		@ width
-	mla	r3, r1, r2, r0	@ width*y+x : FrameBuffer indekss, kurs jaiekraso
+	cmp	r1, r0
+	bge	.Lend_pixel		@ if (y >= FrameBufferHeight) return;
+	ldr	r0, [sp, #8]	@ x
+	ldr	r2, [sp]		@ FrameBufferWidth
+	cmp	r0, r2
+	bge	.Lend_pixel		@ if (x >= FrameBufferWidth) return;
+	mla	r3, r1, r2, r0	@ y*FrameBufferWidth + x : FrameBuffer indekss, kurs jaiekraso
 	ldr	r1, [sp, #16]	@ color addr
 	ldr	r1, [r1]		@ color value
 	ldr	r2, [sp, #4]	@ FrameBuffer addr
@@ -462,10 +472,10 @@ triangleFill:
 	bl	FrameBufferGetWidth
 	sub r0, r0, #1	@ jo xmax var būt frame buffer width - 1
 	cmp r4, r0
-	movgt r4, r0
+	movgt r4, r0	@ if (xmax > frameBufferWidth-1) xmax = frameBufferWidth-1;
 	bl FrameBufferGetHeight
 	sub r0, r0, #1
-	cmp r5, r0
+	cmp r5, r0		@ if (ymax > frameBufferHeight-1) ymax = frameBufferHeight-1;
 	movgt r5, r0
 
 	/* Tagad ejam cauri katram pikselim iekš iespējamajām
