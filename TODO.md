@@ -1,4 +1,3 @@
-- sarakstīt uzdevuma aprakstu: apraksts.pdf
 - ieviest līnijas apcirpšanu, lai neraksta/nerēķina neko ārpus FrameBuffer
 - circle iekš draw_8_symmetric_points pārbaudīt, vai ietilpst FrameBufferī?
 - varbūt uz Brezenhama algoritmu bāzēta triangleFill implementācija
