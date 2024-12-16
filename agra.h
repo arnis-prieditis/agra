@@ -1,6 +1,7 @@
 #ifndef AGRA_H
 #define AGRA_H
 
+// Nodefinējam kadra augstumu un platumu.
 #define FrameWidth 40
 #define FrameHeight 20
 
@@ -23,12 +24,11 @@ typedef enum {
     PIXEL_XOR  = 3
 } pixop_t;
 
-// globālie mainīgie priekš "ekrāna" un tekošās krāsas
-// (varbūt ir labāks veids, kā šo realizēt)
+// Globālie mainīgie priekš "ekrāna" un tekošās krāsas
 extern pixcolor_t * FrameBuffer;
 extern pixcolor_t * currentPixColor;
 
-// Funkcija krasas (un operācijas) uztādīšanai
+// Funkcija krāsas (un operācijas) uztādīšanai
 void setPixColor(pixcolor_t * color_op);
 
 // Funkcija viena pikseļa uzstadīšanai

@@ -23,11 +23,13 @@ int FrameBufferGetHeight() {
 	return FrameHeight;
 }
 
+// Palīgfunkcija priekš FrameShow, kas pikselim piešķir simbolu,
+// ar ko reprezentēt tā krāsu.
 char* pix_to_char (pixcolor_t pix) {
 	bool redDominates = false;
 	bool greenDominates = false;
 	bool blueDominates = false;
-	if (pix.r >= 0x0200) redDominates = true;
+	if (pix.r >= 0x0200) redDominates = true; // salīdzina ar ~pusi no max vērtības 0x3ff
 	if (pix.g >= 0x0200) greenDominates = true;
 	if (pix.b >= 0x0200) blueDominates = true;
 	if (!redDominates && !greenDominates && !blueDominates)	return " ";
@@ -38,9 +40,12 @@ char* pix_to_char (pixcolor_t pix) {
 	if (!redDominates && greenDominates && blueDominates)	return "C";
 	if (redDominates && !greenDominates && blueDominates)	return "M";
 	if (redDominates && greenDominates && !blueDominates)	return "Y";
-	return "E"; // error
+	return "E"; // error, bet it kā nav iespējams sasniegt šo rindu
 }
 
+// Neliela modifikācija no ieipriekšējās funkcijas, kas simbolam arī
+// piešķir tam atbilstošo aptuveno krāsu, kad izvada terminālī.
+// Šobrīd netiek lietota iekš FrameShow
 char* pix_to_char_color (pixcolor_t pix) {
 	bool redDominates = false;
 	bool greenDominates = false;
@@ -62,8 +67,9 @@ char* pix_to_char_color (pixcolor_t pix) {
 // Kadra izvadīšana uz "displeja iekārtas".
 int FrameShow() {
 	if (FrameBuffer == NULL) return 1;
+	// Izvadam tā, lai x koordinātes augtu pa labi
+	// un y koordinātes augtu uz augšu.
 	for (int i=FrameHeight-1; i>=0; i--) {
-	// for (int i=0; i<FrameHeight; i++) {
 		for (int j=0; j<FrameWidth; j++) {
 			printf("%s", pix_to_char(FrameBuffer[i*FrameWidth + j]));
 		}
