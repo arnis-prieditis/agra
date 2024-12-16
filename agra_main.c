@@ -2,34 +2,53 @@
 #include <stdio.h>
 #include "agra.h"
 
+#define FrameWidthVal 40
+#define FrameHeightVal 20
+
+// definējam mainīgos no agra.h
+pixcolor_t * FrameBuffer = NULL;
+int FrameWidth = 0;
+int FrameHeight = 0;
+pixcolor_t * currentPixColor = NULL;
+
 int main (int argc, char ** argv) {
 
-	// frame and current color init
+	// inicializējam ekrāna buferi
+	FrameWidth = FrameWidthVal;
+	FrameHeight = FrameHeightVal;
 	FrameBuffer = (pixcolor_t *)malloc(FrameWidth * FrameHeight * sizeof(pixcolor_t));
+
+	// definējam uzreiz vienuviet vajadzīgās krāsas
 	pixcolor_t black = {0,0,0,0};
+	pixcolor_t white = {0x03ff,0x03ff,0x03ff,0};
+	pixcolor_t blue = {0,0,0x03ff,0};
+	pixcolor_t green = {0,0x03ff,0,0};
+	pixcolor_t red = {0x03ff,0,0,0};
+	//pixcolor_t black1 = 0x00000000;
+
+	// inicializējam tekošo krāsu
 	currentPixColor = &black;
 	
-	// tests
+	// katru pikseli aizpilda ar melnu krāsu
 	int width = FrameBufferGetWidth();
 	int height = FrameBufferGetHeight();
 	for (int i=0; i<width; i++) {
 		for (int j=0; j<height; j++) {
-			pixcolor_t black = {0,0,0,0};
 			pixel(i, j, &black);
 		}
 	}
-	pixcolor_t white = {0x03ff,0x03ff,0x03ff,0};
+
 	pixel(25, 2, &white);
-	pixcolor_t blue = {0,0,0x03ff,0};
+
 	setPixColor(&blue);
-	line(39,19,10,0);
-	pixcolor_t green = {0,0x03ff,0,2};
+	line(0, 0, 39, 19);
+
 	setPixColor(&green);
-	// triangleFill(19, 19, 5, 9, 30, 3);
-	triangleFill(19, 0, 5, 9, 30, 3);
-	pixcolor_t red = {0x03ff,0,0,2};
+	triangleFill(20, 13, 28, 19, 38, 6);
+
 	setPixColor(&red);
-	circle(20,10,7);
+	circle(20, 10, 7);
+
 	FrameShow();
 
 	free(FrameBuffer);

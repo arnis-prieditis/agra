@@ -1,10 +1,6 @@
 #ifndef AGRA_H
 #define AGRA_H
 
-// Nodefinējam kadra augstumu un platumu.
-#define FrameWidth 40
-#define FrameHeight 20
-
 // Krāsas tips punktam: 
 //    r,g,b ir sarkanā, zaļā, un zilā krāsu komponentes, katrai 10 biti.
 //    op  ir operācija, kas jāizpilda šim pikselim ar fona krāsu. 0 - nozīmē rakstīt pāri.
@@ -24,8 +20,11 @@ typedef enum {
     PIXEL_XOR  = 3
 } pixop_t;
 
-// Globālie mainīgie priekš "ekrāna" un tekošās krāsas
+// Globālie mainīgie priekš "ekrāna", tā izmēriem un tekošās krāsas.
+// Te tos tikai deklarējam. Definēsim "main" failā.
 extern pixcolor_t * FrameBuffer;
+extern int FrameWidth;
+extern int FrameHeight;
 extern pixcolor_t * currentPixColor;
 
 // Funkcija krāsas (un operācijas) uztādīšanai

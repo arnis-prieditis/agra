@@ -3,9 +3,6 @@
 #include <stdbool.h>
 #include "agra.h"
 
-pixcolor_t * FrameBuffer = NULL;
-pixcolor_t * currentPixColor = NULL;
-
 // Kadra bufera sākuma adrese
 pixcolor_t * FrameBufferGetAddress() {
 	return FrameBuffer;
