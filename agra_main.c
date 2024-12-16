@@ -24,7 +24,6 @@ int main (int argc, char ** argv) {
 	pixcolor_t blue = {0,0,0x03ff,0};
 	pixcolor_t green = {0,0x03ff,0,0};
 	pixcolor_t red = {0x03ff,0,0,0};
-	//pixcolor_t black1 = 0x00000000;
 
 	// inicializējam tekošo krāsu
 	currentPixColor = &black;
